@@ -8,7 +8,54 @@ export type PageId =
   | 'sectors'
   | 'why-classic'
   | 'faq'
-  | 'contact';
+  | 'contact'
+  | 'admin';
+
+export interface VisitItem {
+  id: string;
+  timestamp: string;
+  ip?: string;
+  referrer: string;
+  referrerSource: 'Facebook' | 'Google' | 'WhatsApp' | 'Direct' | 'Other';
+  path: string;
+  pageTitle: string;
+  device: 'Mobile' | 'Tablet' | 'Desktop';
+  browser: string;
+  os: string;
+  country: string;
+  city: string;
+  sessionId: string;
+}
+
+export interface LeadItem {
+  id: string;
+  timestamp: string;
+  name: string;
+  phone: string;
+  email?: string;
+  placeType?: string;
+  location?: string;
+  problemType?: string;
+  serviceRequested?: string;
+  preferredTime?: string;
+  notes?: string;
+  source: string;
+  status: 'new' | 'contacted' | 'scheduled' | 'completed' | 'cancelled';
+}
+
+export interface AnalyticsStats {
+  totalVisits: number;
+  uniqueVisitors: number;
+  todayVisits: number;
+  todayLeads: number;
+  totalLeads: number;
+  newLeads: number;
+  completedLeads: number;
+  referrers: Record<string, number>;
+  devices: Record<string, number>;
+  eventCounts: Record<string, number>;
+  pagesCount: Record<string, number>;
+}
 
 export interface ServiceItem {
   id: string;

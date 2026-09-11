@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Language, QuoteFormData } from '../types';
 import { SERVICES_DATA, SECTORS_DATA } from '../data/content';
+import { submitLead } from '../utils/analytics';
 import { X, Send, Sparkles, CheckCircle2, Phone, Building, MapPin, Clock } from 'lucide-react';
 
 interface QuoteModalProps {
@@ -48,10 +49,22 @@ export const QuoteModal: React.FC<QuoteModalProps> = ({ isOpen, onClose, lang })
     if (!validate()) return;
 
     setIsSubmitting(true);
+
+    submitLead({
+      name: formData.fullName,
+      phone: formData.phone,
+      placeType: formData.facilityType,
+      location: formData.city,
+      serviceRequested: formData.serviceType,
+      notes: formData.problemDescription,
+      preferredTime: formData.preferredTime,
+      source: 'طلب معاينة وعرض سعر',
+    });
+
     setTimeout(() => {
       setIsSubmitting(false);
       setIsSuccess(true);
-    }, 850);
+    }, 600);
   };
 
   return (

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Language, ContactFormData } from '../types';
 import { COMPANY_CONFIG, getPhoneCallUrl, getWhatsAppUrl, getMailtoUrl } from '../data/config';
 import { SERVICES_DATA, SECTORS_DATA } from '../data/content';
+import { submitLead } from '../utils/analytics';
 import { 
   Phone, 
   MessageCircle, 
@@ -67,7 +68,19 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ lang }) => {
     if (!validate()) return;
 
     setIsSubmitting(true);
-    // Simulate server-side processing delay
+    
+    // Send lead to Admin Dashboard
+    submitLead({
+      name: formData.fullName,
+      phone: formData.phone,
+      email: formData.email,
+      placeType: formData.clientType,
+      location: formData.cityArea,
+      serviceRequested: formData.serviceRequested,
+      notes: formData.message,
+      source: 'نموذج تواصل الموقع',
+    });
+
     setTimeout(() => {
       setIsSubmitting(false);
       setIsSuccess(true);
@@ -80,7 +93,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ lang }) => {
         cityArea: '',
         message: '',
       });
-    }, 900);
+    }, 600);
   };
 
   const contactCards = [

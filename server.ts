@@ -3,6 +3,7 @@ import path from "path";
 import dotenv from "dotenv";
 import { createServer as createViteServer } from "vite";
 import { GoogleGenAI } from "@google/genai";
+import { analyticsStore } from "./server/store";
 
 dotenv.config();
 
@@ -126,6 +127,186 @@ app.post("/api/chat", async (req, res) => {
       fallback: true,
       error: error.message || "Failed to contact AI service"
     });
+  }
+});
+
+// Helper for parsing user-agent
+function parseUserAgent(ua = ""): { device: 'Mobile' | 'Tablet' | 'Desktop'; browser: string; os: string } {
+  let device: 'Mobile' | 'Tablet' | 'Desktop' = 'Desktop';
+  if (/iPad|Tablet|PlayBook/i.test(ua)) {
+    device = 'Tablet';
+  } else if (/Mobile|Android|iPhone|iPod|BlackBerry|IEMobile/i.test(ua)) {
+    device = 'Mobile';
+  }
+
+  let os = 'Windows';
+  if (/Android/i.test(ua)) os = 'Android';
+  else if (/iPhone|iPad|iPod/i.test(ua)) os = 'iOS';
+  else if (/Mac OS/i.test(ua)) os = 'macOS';
+  else if (/Linux/i.test(ua)) os = 'Linux';
+  else if (/Windows/i.test(ua)) os = 'Windows';
+
+  let browser = 'Chrome';
+  if (/Edg/i.test(ua)) browser = 'Edge';
+  else if (/Safari/i.test(ua) && !/Chrome/i.test(ua)) browser = device === 'Mobile' ? 'Safari Mobile' : 'Safari';
+  else if (/Firefox/i.test(ua)) browser = 'Firefox';
+  else if (/Chrome/i.test(ua)) browser = device === 'Mobile' ? 'Chrome Mobile' : 'Chrome';
+
+  return { device, browser, os };
+}
+
+// -------------------------------------------------------------
+// ANALYTICS & VISIT TRACKING API
+// -------------------------------------------------------------
+
+// Record a page visit
+app.post("/api/track/visit", (req, res) => {
+  try {
+    const { path: pagePath, pageTitle, referrer, sessionId, country, city } = req.body;
+    const ua = (req.headers["user-agent"] as string) || "";
+    const { device, browser, os } = parseUserAgent(ua);
+    const ip = (req.headers["x-forwarded-for"] as string) || req.socket.remoteAddress || "127.0.0.1";
+
+    const record = analyticsStore.recordVisit({
+      path: pagePath || "/",
+      pageTitle: pageTitle || "الرئيسية",
+      referrer: referrer || "direct",
+      sessionId: sessionId || `sess_${Date.now()}`,
+      device,
+      browser,
+      os,
+      country: country || "مصر",
+      city: city || (ip.includes("127.0.0.1") ? "القاهرة" : "الجيزة"),
+      ip: ip.split(",")[0].trim(),
+    });
+
+    res.json({ success: true, visitId: record.id });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Record user interactions (WhatsApp click, Call click, Facebook page click, Chat Assistant open)
+app.post("/api/track/event", (req, res) => {
+  try {
+    const { eventType, label, path: pagePath, sessionId } = req.body;
+    if (!eventType) return res.status(400).json({ error: "Missing eventType" });
+
+    const eventRecord = analyticsStore.recordEvent({
+      eventType,
+      label: label || eventType,
+      path: pagePath || "/",
+      sessionId: sessionId || "anon",
+    });
+
+    res.json({ success: true, eventId: eventRecord.id });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// -------------------------------------------------------------
+// LEADS & SERVICE REQUESTS API
+// -------------------------------------------------------------
+
+// Save new customer inquiry/order (from Chat Assistant, Contact Form, or Quote Request)
+app.post("/api/leads", (req, res) => {
+  try {
+    const {
+      name,
+      phone,
+      email,
+      placeType,
+      location,
+      problemType,
+      serviceRequested,
+      preferredTime,
+      notes,
+      source,
+    } = req.body;
+
+    if (!name || !phone) {
+      return res.status(400).json({ error: "Name and phone are required" });
+    }
+
+    const lead = analyticsStore.addLead({
+      name,
+      phone,
+      email: email || "",
+      placeType: placeType || "منشأة سكنية",
+      location: location || "القاهرة",
+      problemType: problemType || "مكافحة حشرات عامة",
+      serviceRequested: serviceRequested || "معاينة ومكافحة",
+      preferredTime: preferredTime || "في أقرب وقت",
+      notes: notes || "",
+      source: source || "نموذج تواصل الموقع",
+      status: "new",
+    });
+
+    res.json({ success: true, lead });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// -------------------------------------------------------------
+// ADMIN DASHBOARD APIs
+// -------------------------------------------------------------
+
+// Get overall stats (visits, referrers, devices, leads)
+app.get("/api/admin/stats", (_req, res) => {
+  try {
+    const stats = analyticsStore.getStats();
+    res.json(stats);
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Get recent visits log
+app.get("/api/admin/visits", (req, res) => {
+  try {
+    const limit = Number(req.query.limit) || 100;
+    const source = req.query.source as string;
+    const visits = analyticsStore.getVisits(limit, source);
+    res.json(visits);
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Get customer leads
+app.get("/api/admin/leads", (req, res) => {
+  try {
+    const status = req.query.status as string;
+    const q = req.query.q as string;
+    const leads = analyticsStore.getLeads(status, q);
+    res.json(leads);
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Update lead status or notes
+app.patch("/api/admin/leads/:id", (req, res) => {
+  try {
+    const { id } = req.params;
+    const updated = analyticsStore.updateLead(id, req.body);
+    if (!updated) return res.status(404).json({ error: "Lead not found" });
+    res.json({ success: true, lead: updated });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Delete lead
+app.delete("/api/admin/leads/:id", (req, res) => {
+  try {
+    const { id } = req.params;
+    const success = analyticsStore.deleteLead(id);
+    res.json({ success });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
   }
 });
 

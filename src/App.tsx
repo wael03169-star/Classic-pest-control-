@@ -15,11 +15,18 @@ import { Footer } from './components/Footer';
 import { QuoteModal } from './components/QuoteModal';
 import { FloatingActions } from './components/FloatingActions';
 import { ChatWidget } from './components/ChatWidget';
+import { AdminDashboard } from './components/AdminDashboard';
 import { SERVICES_DATA } from './data/content';
+import { trackPageView } from './utils/analytics';
 
 export default function App() {
   const [lang, setLang] = useState<Language>('ar');
-  const [currentPage, setCurrentPage] = useState<PageId>('home');
+  const [currentPage, setCurrentPage] = useState<PageId>(() => {
+    if (typeof window !== 'undefined' && window.location.hash === '#admin') {
+      return 'admin';
+    }
+    return 'home';
+  });
   const [selectedServiceId, setSelectedServiceId] = useState<string>(SERVICES_DATA[0].id);
   const [isQuoteModalOpen, setIsQuoteModalOpen] = useState<boolean>(false);
 
@@ -27,19 +34,45 @@ export default function App() {
   useEffect(() => {
     document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
     document.documentElement.lang = lang;
-    document.title =
-      lang === 'ar'
-        ? 'كلاسيك لمكافحة الحشرات | CLASSIC PEST CONTROL - مكافحة آفات الصحة العامة'
-        : 'CLASSIC PEST CONTROL | Public Health Pest Management Solutions';
-  }, [lang]);
+    if (currentPage === 'admin') {
+      document.title = 'لوحة التحكم وإدارة الزيارات | CLASSIC PEST CONTROL';
+    } else {
+      document.title =
+        lang === 'ar'
+          ? 'كلاسيك لمكافحة الحشرات | CLASSIC PEST CONTROL - مكافحة آفات الصحة العامة'
+          : 'CLASSIC PEST CONTROL | Public Health Pest Management Solutions';
+    }
+  }, [lang, currentPage]);
+
+  // Track page views and listen to hashchange
+  useEffect(() => {
+    trackPageView(currentPage);
+
+    const handleHashChange = () => {
+      if (window.location.hash === '#admin') {
+        setCurrentPage('admin');
+      }
+    };
+
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, [currentPage]);
 
   // Navigate handler
   const handleNavigate = (page: PageId, serviceId?: string) => {
-    if (serviceId) {
-      setSelectedServiceId(serviceId);
-      setCurrentPage('service-details');
+    if (page === 'admin') {
+      window.location.hash = 'admin';
+      setCurrentPage('admin');
     } else {
-      setCurrentPage(page);
+      if (window.location.hash === '#admin') {
+        window.location.hash = '';
+      }
+      if (serviceId) {
+        setSelectedServiceId(serviceId);
+        setCurrentPage('service-details');
+      } else {
+        setCurrentPage(page);
+      }
     }
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -53,13 +86,15 @@ export default function App() {
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900 overflow-x-hidden selection:bg-[#D4AF37]/20 selection:text-[#0A192F]">
       {/* Sticky Header */}
-      <Header
-        lang={lang}
-        onLanguageChange={setLang}
-        currentPage={currentPage}
-        onNavigate={handleNavigate}
-        onOpenQuoteModal={() => setIsQuoteModalOpen(true)}
-      />
+      {currentPage !== 'admin' && (
+        <Header
+          lang={lang}
+          onLanguageChange={setLang}
+          currentPage={currentPage}
+          onNavigate={handleNavigate}
+          onOpenQuoteModal={() => setIsQuoteModalOpen(true)}
+        />
+      )}
 
       {/* Main Content Area */}
       <main className="flex-1">
@@ -152,14 +187,23 @@ export default function App() {
             <FaqSection lang={lang} onNavigate={handleNavigate} />
           </div>
         )}
+
+        {currentPage === 'admin' && (
+          <AdminDashboard
+            lang={lang}
+            onBackToSite={() => handleNavigate('home')}
+          />
+        )}
       </main>
 
       {/* Footer */}
-      <Footer
-        lang={lang}
-        onNavigate={handleNavigate}
-        onOpenQuoteModal={() => setIsQuoteModalOpen(true)}
-      />
+      {currentPage !== 'admin' && (
+        <Footer
+          lang={lang}
+          onNavigate={handleNavigate}
+          onOpenQuoteModal={() => setIsQuoteModalOpen(true)}
+        />
+      )}
 
       {/* Quote Request Modal */}
       <QuoteModal
@@ -169,10 +213,10 @@ export default function App() {
       />
 
       {/* Floating Action Buttons (WhatsApp & Call) */}
-      <FloatingActions lang={lang} />
+      {currentPage !== 'admin' && <FloatingActions lang={lang} />}
 
       {/* AI Customer Service Assistant ("مساعد كلاسيك") */}
-      <ChatWidget lang={lang} />
+      {currentPage !== 'admin' && <ChatWidget lang={lang} />}
     </div>
   );
 }

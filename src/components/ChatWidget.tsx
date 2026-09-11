@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { COMPANY_CONFIG, getWhatsAppUrl, getPhoneCallUrl } from '../data/config';
+import { submitLead, trackEvent } from '../utils/analytics';
 import { 
   MessageSquare, 
   X, 
@@ -128,7 +129,13 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ lang = 'ar' }) => {
   }, [isOpen]);
 
   const toggleChat = () => {
-    setIsOpen(prev => !prev);
+    setIsOpen(prev => {
+      const next = !prev;
+      if (next) {
+        trackEvent('chat_open', 'فتح محادثة المساعد الذكي');
+      }
+      return next;
+    });
   };
 
   const handleResetChat = () => {
@@ -391,6 +398,20 @@ https://www.facebook.com/share/1J9Bb5w3Zp/
       setOrderData(finalOrder);
       setIsCollectingOrder(false);
       setOrderStep(0);
+
+      // Automatically record lead in Admin Dashboard
+      if (finalOrder.name && finalOrder.phone) {
+        submitLead({
+          name: finalOrder.name,
+          phone: finalOrder.phone,
+          placeType: finalOrder.placeType,
+          location: finalOrder.location,
+          problemType: finalOrder.problemType,
+          serviceRequested: finalOrder.serviceRequested,
+          preferredTime: finalOrder.preferredTime,
+          source: 'مساعد كلاسيك الذكي (AI Chat)',
+        });
+      }
 
       // Append summary message
       const summaryContent = `شكرًا لك أ/ ${finalOrder.name || ''}! تم جمع بيانات طلبك بنجاح. 

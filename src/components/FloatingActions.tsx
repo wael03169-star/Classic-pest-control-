@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Language } from '../types';
 import { COMPANY_CONFIG, getWhatsAppUrl, getPhoneCallUrl } from '../data/config';
+import { trackEvent } from '../utils/analytics';
 import { MessageCircle, Phone, ArrowUp } from 'lucide-react';
 
 interface FloatingActionsProps {
@@ -46,6 +47,7 @@ export const FloatingActions: React.FC<FloatingActionsProps> = ({ lang }) => {
       <a
         id="floating-phone-call-btn"
         href={getPhoneCallUrl()}
+        onClick={() => trackEvent('call_click', 'اتصال هاتفي عبر الزر العائم')}
         className="md:hidden w-12 h-12 rounded-full bg-[#0A192F] text-[#D4AF37] border-2 border-[#D4AF37] shadow-xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all duration-300 cursor-pointer"
         aria-label="Call Classic Pest Control"
       >
@@ -56,6 +58,7 @@ export const FloatingActions: React.FC<FloatingActionsProps> = ({ lang }) => {
       <a
         id="floating-whatsapp-btn"
         href={getWhatsAppUrl()}
+        onClick={() => trackEvent('whatsapp_click', 'واتساب عبر الزر العائم')}
         target="_blank"
         rel="noopener noreferrer"
         className="group relative w-13 h-13 sm:w-14 sm:h-14 rounded-full bg-[#25D366] text-white shadow-2xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all duration-300 cursor-pointer ring-4 ring-[#25D366]/20"

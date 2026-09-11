@@ -13,7 +13,8 @@ import {
   ArrowLeft,
   Calendar,
   Sparkles,
-  Facebook
+  Facebook,
+  ShieldCheck
 } from 'lucide-react';
 
 interface HeaderProps {
@@ -122,10 +123,21 @@ export const Header: React.FC<HeaderProps> = ({
             <button
               id="lang-toggle-desktop"
               onClick={() => onLanguageChange(lang === 'ar' ? 'en' : 'ar')}
-              className="flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-md border border-slate-200 hover:border-[#D4AF37] hover:text-[#0A192F] transition-all bg-slate-50"
+              className="flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-md border border-slate-200 hover:border-[#D4AF37] hover:text-[#0A192F] transition-all bg-slate-50 cursor-pointer"
             >
               <Globe className="w-3.5 h-3.5 text-[#D4AF37]" />
               <span>{lang === 'ar' ? 'English' : 'العربية'}</span>
+            </button>
+            <span className="text-slate-300">|</span>
+            {/* Admin Dashboard Quick Link */}
+            <button
+              id="header-admin-btn"
+              onClick={() => handleNavClick('admin')}
+              className="flex items-center gap-1 text-[11px] font-bold px-2.5 py-1 rounded-md bg-[#0A192F] text-[#D4AF37] hover:bg-[#132a4a] border border-[#D4AF37]/40 transition-all cursor-pointer shadow-2xs"
+              title="لوحة تحكم وتتبع الزيارات والطلبات"
+            >
+              <ShieldCheck className="w-3.5 h-3.5" />
+              <span>لوحة التحكم</span>
             </button>
           </div>
         </div>
@@ -319,6 +331,15 @@ export const Header: React.FC<HeaderProps> = ({
               <Facebook className="w-4 h-4 fill-current" />
               <span>{lang === 'ar' ? 'صفحتنا على Facebook' : 'Our Facebook Page'}</span>
             </a>
+
+            <button
+              id="mobile-drawer-admin-btn"
+              onClick={() => handleNavClick('admin')}
+              className="w-full py-2.5 px-4 rounded-xl bg-[#0A192F] text-[#D4AF37] font-bold text-xs flex items-center justify-center gap-2 border border-[#D4AF37]/50 shadow-xs transition-all cursor-pointer"
+            >
+              <ShieldCheck className="w-4 h-4" />
+              <span>{lang === 'ar' ? 'لوحة تحكم وتتبع الزيارات' : 'Admin & Analytics Dashboard'}</span>
+            </button>
 
             <div className="pt-2 flex items-center justify-between text-xs text-slate-500">
               <span className="font-semibold text-slate-700">

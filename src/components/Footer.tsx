@@ -263,6 +263,15 @@ export const Footer: React.FC<FooterProps> = ({ lang, onNavigate, onOpenQuoteMod
             <span className="text-slate-400">
               {lang === 'ar' ? 'مكافحة آفات الصحة العامة' : 'Public Health Pest Management'}
             </span>
+            <span>•</span>
+            <button
+              onClick={() => onNavigate('admin')}
+              className="text-slate-400 hover:text-[#D4AF37] flex items-center gap-1 transition-colors cursor-pointer"
+              title="لوحة تحكم وتتبع الزيارات"
+            >
+              <ShieldCheck className="w-3.5 h-3.5 text-[#D4AF37]" />
+              <span>{lang === 'ar' ? 'لوحة التحكم' : 'Admin'}</span>
+            </button>
           </div>
         </div>
 
