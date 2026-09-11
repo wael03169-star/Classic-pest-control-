@@ -1,0 +1,174 @@
+import React, { useState, useEffect } from 'react';
+import { Language, PageId } from './types';
+import { Header } from './components/Header';
+import { Hero } from './components/Hero';
+import { ServicesSection } from './components/ServicesSection';
+import { ServiceDetailsView } from './components/ServiceDetailsView';
+import { WhyClassicSection } from './components/WhyClassicSection';
+import { SectorsSection } from './components/SectorsSection';
+import { HowItWorksSection } from './components/HowItWorksSection';
+import { AboutSection } from './components/AboutSection';
+import { CtaBanner } from './components/CtaBanner';
+import { FaqSection } from './components/FaqSection';
+import { ContactSection } from './components/ContactSection';
+import { Footer } from './components/Footer';
+import { QuoteModal } from './components/QuoteModal';
+import { FloatingActions } from './components/FloatingActions';
+import { SERVICES_DATA } from './data/content';
+
+export default function App() {
+  const [lang, setLang] = useState<Language>('ar');
+  const [currentPage, setCurrentPage] = useState<PageId>('home');
+  const [selectedServiceId, setSelectedServiceId] = useState<string>(SERVICES_DATA[0].id);
+  const [isQuoteModalOpen, setIsQuoteModalOpen] = useState<boolean>(false);
+
+  // Synchronize document dir, lang, and title with active language
+  useEffect(() => {
+    document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+    document.documentElement.lang = lang;
+    document.title =
+      lang === 'ar'
+        ? 'كلاسيك لمكافحة الحشرات | CLASSIC PEST CONTROL - مكافحة آفات الصحة العامة'
+        : 'CLASSIC PEST CONTROL | Public Health Pest Management Solutions';
+  }, [lang]);
+
+  // Navigate handler
+  const handleNavigate = (page: PageId, serviceId?: string) => {
+    if (serviceId) {
+      setSelectedServiceId(serviceId);
+      setCurrentPage('service-details');
+    } else {
+      setCurrentPage(page);
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleSelectService = (serviceId: string) => {
+    setSelectedServiceId(serviceId);
+    setCurrentPage('service-details');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  return (
+    <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900 overflow-x-hidden selection:bg-[#D4AF37]/20 selection:text-[#0A192F]">
+      {/* Sticky Header */}
+      <Header
+        lang={lang}
+        onLanguageChange={setLang}
+        currentPage={currentPage}
+        onNavigate={handleNavigate}
+        onOpenQuoteModal={() => setIsQuoteModalOpen(true)}
+      />
+
+      {/* Main Content Area */}
+      <main className="flex-1">
+        {currentPage === 'home' && (
+          <>
+            <Hero
+              lang={lang}
+              onNavigate={handleNavigate}
+              onOpenQuoteModal={() => setIsQuoteModalOpen(true)}
+            />
+            <ServicesSection
+              lang={lang}
+              onSelectService={handleSelectService}
+              onNavigate={handleNavigate}
+            />
+            <WhyClassicSection lang={lang} />
+            <SectorsSection
+              lang={lang}
+              onNavigate={handleNavigate}
+              onOpenQuoteModal={() => setIsQuoteModalOpen(true)}
+            />
+            <HowItWorksSection lang={lang} onNavigate={handleNavigate} />
+            <AboutSection lang={lang} onNavigate={handleNavigate} />
+            <CtaBanner lang={lang} onNavigate={handleNavigate} />
+            <FaqSection lang={lang} onNavigate={handleNavigate} />
+            <ContactSection lang={lang} />
+          </>
+        )}
+
+        {currentPage === 'about' && (
+          <div className="py-8">
+            <AboutSection lang={lang} onNavigate={handleNavigate} />
+            <WhyClassicSection lang={lang} />
+            <CtaBanner lang={lang} onNavigate={handleNavigate} />
+          </div>
+        )}
+
+        {currentPage === 'services' && (
+          <div className="py-6">
+            <ServicesSection
+              lang={lang}
+              onSelectService={handleSelectService}
+              onNavigate={handleNavigate}
+            />
+            <HowItWorksSection lang={lang} onNavigate={handleNavigate} />
+            <CtaBanner lang={lang} onNavigate={handleNavigate} />
+          </div>
+        )}
+
+        {currentPage === 'service-details' && (
+          <ServiceDetailsView
+            lang={lang}
+            selectedServiceId={selectedServiceId}
+            onSelectService={handleSelectService}
+            onNavigate={handleNavigate}
+            onOpenQuoteModal={() => setIsQuoteModalOpen(true)}
+          />
+        )}
+
+        {currentPage === 'sectors' && (
+          <div className="py-6">
+            <SectorsSection
+              lang={lang}
+              onNavigate={handleNavigate}
+              onOpenQuoteModal={() => setIsQuoteModalOpen(true)}
+            />
+            <WhyClassicSection lang={lang} />
+            <CtaBanner lang={lang} onNavigate={handleNavigate} />
+          </div>
+        )}
+
+        {currentPage === 'why-classic' && (
+          <div className="py-6">
+            <WhyClassicSection lang={lang} />
+            <HowItWorksSection lang={lang} onNavigate={handleNavigate} />
+            <CtaBanner lang={lang} onNavigate={handleNavigate} />
+          </div>
+        )}
+
+        {currentPage === 'faq' && (
+          <div className="py-6">
+            <FaqSection lang={lang} onNavigate={handleNavigate} />
+            <CtaBanner lang={lang} onNavigate={handleNavigate} />
+          </div>
+        )}
+
+        {currentPage === 'contact' && (
+          <div className="py-6">
+            <ContactSection lang={lang} />
+            <FaqSection lang={lang} onNavigate={handleNavigate} />
+          </div>
+        )}
+      </main>
+
+      {/* Footer */}
+      <Footer
+        lang={lang}
+        onNavigate={handleNavigate}
+        onOpenQuoteModal={() => setIsQuoteModalOpen(true)}
+      />
+
+      {/* Quote Request Modal */}
+      <QuoteModal
+        isOpen={isQuoteModalOpen}
+        onClose={() => setIsQuoteModalOpen(false)}
+        lang={lang}
+      />
+
+      {/* Floating Action Buttons (WhatsApp & Call) */}
+      <FloatingActions lang={lang} />
+    </div>
+  );
+}

@@ -1,0 +1,6 @@
+{
+  "name": "Classic Pest Control",
+  "description": "كلاسيك لمكافحة الحشرات - حلول احترافية لمكافحة آفات الصحة العامة للأفراد والمنشآت",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
