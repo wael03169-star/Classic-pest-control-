@@ -57,6 +57,7 @@ const SYSTEM_INSTRUCTION = `
 2. إذا لم تكن متأكدًا أو كان السؤال خارج نطاق خدمات الشركة أو معلوماتها، قل للعميل نصًا:
    "لا أملك معلومات كافية للإجابة عن هذا السؤال، ويمكنك التواصل مباشرة مع فريق CLASSIC PEST CONTROL عبر WhatsApp على 01157970073."
 3. رقم WhatsApp ورقم الاتصال الرسمي المعتمد دائمًا هو: 01157970073.
+4. صفحة Facebook الرسمية لـ CLASSIC PEST CONTROL هي: https://www.facebook.com/share/1J9Bb5w3Zp/
 `;
 
 // Health check endpoint

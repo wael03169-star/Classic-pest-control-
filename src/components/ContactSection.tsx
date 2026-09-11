@@ -12,7 +12,8 @@ import {
   CheckCircle2, 
   AlertCircle,
   ExternalLink,
-  ShieldAlert
+  ShieldAlert,
+  Facebook
 } from 'lucide-react';
 
 interface ContactSectionProps {
@@ -494,6 +495,33 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ lang }) => {
                     ? 'تغطي فرق عمل كلاسيك كافة المناطق السكنية والتجارية والصناعية بفرق فنية مجهزة.'
                     : 'Classic teams provide on-site mobile response for residential and corporate premises.'}
                 </p>
+              </div>
+
+              {/* Official Facebook Page Banner */}
+              <div className="p-4 rounded-xl bg-blue-50/70 border border-blue-200 text-xs flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-lg bg-[#1877F2] text-white flex items-center justify-center shrink-0 shadow-xs">
+                    <Facebook className="w-5 h-5 fill-current" />
+                  </div>
+                  <div>
+                    <h5 className="font-bold text-[#0A192F]">
+                      {lang === 'ar' ? 'صفحتنا الرسمية على Facebook' : 'Official Facebook Page'}
+                    </h5>
+                    <p className="text-[11px] text-slate-500">
+                      {lang === 'ar' ? 'تابع أحدث الأعمال والتقارير والنصائح' : 'Follow our latest updates & pest control tips'}
+                    </p>
+                  </div>
+                </div>
+                <a
+                  id="contact-facebook-link"
+                  href={COMPANY_CONFIG.facebook}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-3 py-1.5 rounded-lg bg-[#1877F2] hover:bg-[#166fe5] text-white font-bold text-xs flex items-center gap-1 shrink-0 transition-colors shadow-xs"
+                >
+                  <span>{lang === 'ar' ? 'زيارة الصفحة' : 'Visit Page'}</span>
+                  <ExternalLink className="w-3 h-3" />
+                </a>
               </div>
             </div>
           </div>

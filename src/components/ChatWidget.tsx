@@ -19,7 +19,8 @@ import {
   Clock,
   User,
   MapPin,
-  FileText
+  FileText,
+  Facebook
 } from 'lucide-react';
 
 interface ChatMessage {
@@ -215,16 +216,22 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ lang = 'ar' }) => {
       text.includes('رقم التليفون') || 
       text.includes('واتساب') || 
       text.includes('عنوان') || 
-      text.includes('اتصل')
+      text.includes('اتصل') ||
+      text.includes('فيسبوك') ||
+      text.includes('فيس بوك') ||
+      text.includes('facebook') ||
+      text.includes('صفحة')
     ) {
       appendAssistantMessage(
         `يسعدنا تواصلك معنا مباشرة عبر قنواتنا الرسمية:
 📞 *رقم الاتصال المباشر:* 01157970073
 💬 *محادثة WhatsApp:* 01157970073
+🌐 *صفحتنا الرسمية على Facebook:*
+https://www.facebook.com/share/1J9Bb5w3Zp/
 🕒 *أوقات العمل:* متاحون على مدار الساعة 24/7 طوال أيام الأسبوع لخدمتكم وتلبية الطوارئ.
 
-يمكنك الضغط بالأسفل لبدء المحادثة الفورية مع خدمة العملاء.`,
-        ['أريد طلب خدمة', 'ما هي خدماتكم؟']
+يمكنك الضغط بالأسفل لبدء المحادثة الفورية أو زيارة صفحتنا.`,
+        ['صفحتنا على Facebook 🌐', 'أريد طلب خدمة', 'ما هي خدماتكم؟']
       );
       return;
     }
@@ -480,6 +487,17 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ lang = 'ar' }) => {
       return;
     }
 
+    if (messageContent === 'صفحتنا على Facebook 🌐' || messageContent.includes('Facebook')) {
+      window.open(COMPANY_CONFIG.facebook, '_blank', 'noopener,noreferrer');
+      appendAssistantMessage(
+        `تم فتح صفحة CLASSIC PEST CONTROL الرسمية على Facebook:
+${COMPANY_CONFIG.facebook}
+يسعدنا متابعتك لصفحتنا للاطلاع على أعمالنا وعروضنا وطلب الاستشارات.`,
+        ['أريد طلب خدمة', 'التواصل عبر WhatsApp', 'ما هي خدماتكم؟']
+      );
+      return;
+    }
+
     // Try calling server-side /api/chat with Gemini
     setIsTyping(true);
     try {
@@ -620,6 +638,16 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ lang = 'ar' }) => {
 
             {/* Quick Header Actions */}
             <div className="flex items-center gap-1">
+              <a
+                href={COMPANY_CONFIG.facebook}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-1.5 rounded-lg text-slate-300 hover:text-blue-400 hover:bg-white/10 transition-colors"
+                title="صفحتنا على Facebook"
+                aria-label="Facebook Page"
+              >
+                <Facebook className="w-4 h-4 fill-current" />
+              </a>
               <a
                 href={getPhoneCallUrl()}
                 className="p-1.5 rounded-lg text-slate-300 hover:text-[#D4AF37] hover:bg-white/10 transition-colors"

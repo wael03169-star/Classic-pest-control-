@@ -10,7 +10,8 @@ import {
   MapPin, 
   Clock, 
   ExternalLink,
-  ShieldCheck
+  ShieldCheck,
+  Facebook
 } from 'lucide-react';
 
 interface FooterProps {
@@ -52,30 +53,23 @@ export const Footer: React.FC<FooterProps> = ({ lang, onNavigate, onOpenQuoteMod
               </p>
             </div>
 
-            {/* Social Links with Placeholders */}
+            {/* Social Links with Facebook */}
             <div className="pt-2">
               <p className="text-xs font-bold text-white uppercase tracking-wider mb-2.5">
                 {lang === 'ar' ? 'تابعنا وتواصل معنا:' : 'Connect with Us:'}
               </p>
-              <div className="flex items-center gap-3">
-                {/* Facebook */}
+              <div className="flex flex-wrap items-center gap-2.5">
+                {/* Facebook Official Page */}
                 <a
-                  href={COMPANY_CONFIG.facebook === '[FACEBOOK]' ? '#contact' : COMPANY_CONFIG.facebook}
-                  target={COMPANY_CONFIG.facebook !== '[FACEBOOK]' ? '_blank' : '_self'}
+                  id="footer-facebook-link"
+                  href={COMPANY_CONFIG.facebook}
+                  target="_blank"
                   rel="noopener noreferrer"
-                  className="px-3 py-1.5 rounded-lg bg-slate-800/80 hover:bg-[#D4AF37] hover:text-[#0A192F] text-xs font-bold transition-all border border-slate-700"
+                  className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#1877F2] hover:bg-[#166fe5] text-white text-xs font-bold transition-all shadow-xs"
+                  title="تابع صفحتنا على Facebook"
                 >
-                  Facebook
-                </a>
-
-                {/* Instagram */}
-                <a
-                  href={COMPANY_CONFIG.instagram === '[INSTAGRAM]' ? '#contact' : COMPANY_CONFIG.instagram}
-                  target={COMPANY_CONFIG.instagram !== '[INSTAGRAM]' ? '_blank' : '_self'}
-                  rel="noopener noreferrer"
-                  className="px-3 py-1.5 rounded-lg bg-slate-800/80 hover:bg-[#D4AF37] hover:text-[#0A192F] text-xs font-bold transition-all border border-slate-700"
-                >
-                  Instagram
+                  <Facebook className="w-3.5 h-3.5 fill-current" />
+                  <span>Facebook</span>
                 </a>
 
                 {/* WhatsApp */}
@@ -83,9 +77,19 @@ export const Footer: React.FC<FooterProps> = ({ lang, onNavigate, onOpenQuoteMod
                   href={getWhatsAppUrl()}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="px-3 py-1.5 rounded-lg bg-[#25D366]/20 hover:bg-[#25D366] text-white text-xs font-bold transition-all border border-[#25D366]/40"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#25D366] hover:bg-[#20bd5a] text-white text-xs font-bold transition-all shadow-xs"
                 >
-                  WhatsApp
+                  <MessageCircle className="w-3.5 h-3.5" />
+                  <span>WhatsApp</span>
+                </a>
+
+                {/* Phone Call */}
+                <a
+                  href={getPhoneCallUrl()}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#D4AF37] hover:bg-[#c5a869] text-[#0A192F] text-xs font-bold transition-all shadow-xs"
+                >
+                  <Phone className="w-3.5 h-3.5" />
+                  <span>{lang === 'ar' ? 'اتصال' : 'Call'}</span>
                 </a>
               </div>
             </div>
@@ -179,6 +183,27 @@ export const Footer: React.FC<FooterProps> = ({ lang, onNavigate, onOpenQuoteMod
                     title={lang === 'ar' ? 'فتح محادثة واتساب' : 'Open WhatsApp'}
                   >
                     {COMPANY_CONFIG.whatsapp}
+                  </a>
+                </div>
+              </li>
+
+              <li className="flex items-start gap-2.5">
+                <div className="w-7 h-7 rounded-lg bg-[#1877F2]/10 flex items-center justify-center text-[#1877F2] shrink-0 mt-0.5">
+                  <Facebook className="w-4 h-4 fill-current" />
+                </div>
+                <div>
+                  <span className="block font-semibold text-white">
+                    {lang === 'ar' ? 'صفحة Facebook الرسمية:' : 'Official Facebook Page:'}
+                  </span>
+                  <a
+                    href={COMPANY_CONFIG.facebook}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-400 hover:underline text-xs font-bold block mt-0.5 flex items-center gap-1"
+                    title="زيارة صفحتنا على فيسبوك"
+                  >
+                    <span>CLASSIC PEST CONTROL</span>
+                    <ExternalLink className="w-3 h-3" />
                   </a>
                 </div>
               </li>

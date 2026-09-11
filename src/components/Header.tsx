@@ -12,7 +12,8 @@ import {
   ArrowRight, 
   ArrowLeft,
   Calendar,
-  Sparkles
+  Sparkles,
+  Facebook
 } from 'lucide-react';
 
 interface HeaderProps {
@@ -103,6 +104,18 @@ export const Header: React.FC<HeaderProps> = ({
             >
               <MessageCircle className="w-3.5 h-3.5" />
               <span>WhatsApp: <span dir="ltr" className="font-mono">{COMPANY_CONFIG.whatsapp}</span></span>
+            </a>
+            <span className="text-slate-300">|</span>
+            <a
+              id="header-top-facebook"
+              href={COMPANY_CONFIG.facebook}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1 text-[#1877F2] font-bold hover:text-[#0A192F] transition-colors"
+              title="صفحتنا على Facebook"
+            >
+              <Facebook className="w-3.5 h-3.5 fill-current" />
+              <span>Facebook</span>
             </a>
             <span className="text-slate-300">|</span>
             {/* Language Switcher Button */}
@@ -294,6 +307,17 @@ export const Header: React.FC<HeaderProps> = ({
               <MessageCircle className="w-4 h-4" />
               <span>{lang === 'ar' ? 'محادثة WhatsApp مباشرة' : 'Direct WhatsApp Chat'}</span>
               <span dir="ltr" className="font-mono text-xs font-bold opacity-90">({COMPANY_CONFIG.whatsapp})</span>
+            </a>
+
+            <a
+              id="mobile-drawer-facebook-btn"
+              href={COMPANY_CONFIG.facebook}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full py-3 px-4 rounded-xl bg-[#1877F2] text-white font-bold text-sm flex items-center justify-center gap-2 hover:bg-[#166fe5] shadow-md transition-all"
+            >
+              <Facebook className="w-4 h-4 fill-current" />
+              <span>{lang === 'ar' ? 'صفحتنا على Facebook' : 'Our Facebook Page'}</span>
             </a>
 
             <div className="pt-2 flex items-center justify-between text-xs text-slate-500">

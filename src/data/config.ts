@@ -23,8 +23,8 @@ export const COMPANY_CONFIG = {
   // Location & Maps Placeholder
   googleMapsLocation: "[GOOGLE_MAPS_LOCATION]",
 
-  // Social Media Placeholders
-  facebook: "[FACEBOOK]",
+  // Social Media
+  facebook: "https://www.facebook.com/share/1J9Bb5w3Zp/",
   instagram: "[INSTAGRAM]",
   websiteUrl: "[WEBSITE URL]",
 
