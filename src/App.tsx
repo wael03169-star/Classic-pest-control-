@@ -14,6 +14,7 @@ import { ContactSection } from './components/ContactSection';
 import { Footer } from './components/Footer';
 import { QuoteModal } from './components/QuoteModal';
 import { FloatingActions } from './components/FloatingActions';
+import { ChatWidget } from './components/ChatWidget';
 import { SERVICES_DATA } from './data/content';
 
 export default function App() {
@@ -169,6 +170,9 @@ export default function App() {
 
       {/* Floating Action Buttons (WhatsApp & Call) */}
       <FloatingActions lang={lang} />
+
+      {/* AI Customer Service Assistant ("مساعد كلاسيك") */}
+      <ChatWidget lang={lang} />
     </div>
   );
 }
