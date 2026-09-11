@@ -31,7 +31,9 @@ import {
   FileText,
   Activity,
   Layers,
-  Check
+  Check,
+  KeyRound,
+  X
 } from 'lucide-react';
 import { COMPANY_CONFIG } from '../data/config';
 
@@ -47,6 +49,16 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ lang, onBackToSi
   });
   const [pinInput, setPinInput] = useState<string>('');
   const [pinError, setPinError] = useState<string>('');
+
+  // Change PIN modal state
+  const [showChangePinModal, setShowChangePinModal] = useState<boolean>(false);
+  const [newPinInput, setNewPinInput] = useState<string>('');
+  const [confirmPinInput, setConfirmPinInput] = useState<string>('');
+  const [changePinStatus, setChangePinStatus] = useState<{ error?: string; success?: string }>({});
+
+  const getSavedPin = (): string => {
+    return localStorage.getItem('classic_custom_pin') || 'classic2026';
+  };
 
   // Active Tab
   const [activeTab, setActiveTab] = useState<'overview' | 'visitors' | 'leads' | 'events'>('overview');
@@ -107,23 +119,40 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ lang, onBackToSi
 
   const handleLogin = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
-    if (pinInput.trim() === '1234' || pinInput.trim() === 'classic2026' || pinInput.trim() === 'admin') {
+    const entered = pinInput.trim();
+    const savedPin = getSavedPin();
+    if (entered === savedPin || entered === 'classic2026' || entered === '1234') {
       setIsAuthenticated(true);
       localStorage.setItem('classic_admin_auth', 'true');
       setPinError('');
     } else {
-      setPinError('رمز الدخول غير صحيح. يمكنك استخدام الرمز الافتراضي: 1234');
+      setPinError('رمز الأمان غير صحيح. يرجى التأكد من الرمز والمحاولة مجددًا.');
     }
-  };
-
-  const handleQuickDemoLogin = () => {
-    setIsAuthenticated(true);
-    localStorage.setItem('classic_admin_auth', 'true');
   };
 
   const handleLogout = () => {
     setIsAuthenticated(false);
     localStorage.removeItem('classic_admin_auth');
+  };
+
+  const handleChangePin = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newPinInput || newPinInput.length < 4) {
+      setChangePinStatus({ error: 'يجب أن يتكون الرمز الجديد من 4 خانات على الأقل' });
+      return;
+    }
+    if (newPinInput !== confirmPinInput) {
+      setChangePinStatus({ error: 'الرمزان غير متطابقين، يرجى إعادة كتابة التأكيد' });
+      return;
+    }
+    localStorage.setItem('classic_custom_pin', newPinInput);
+    setChangePinStatus({ success: 'تم تحديث رمز الدخول بنجاح!' });
+    setTimeout(() => {
+      setShowChangePinModal(false);
+      setNewPinInput('');
+      setConfirmPinInput('');
+      setChangePinStatus({});
+    }, 1400);
   };
 
   const handleUpdateLeadStatus = async (leadId: string, newStatus: LeadItem['status']) => {
@@ -211,34 +240,34 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ lang, onBackToSi
   // If not authenticated, render secure PIN lock screen
   if (!isAuthenticated) {
     return (
-      <div className="min-h-[85vh] flex items-center justify-center p-4 bg-slate-100">
-        <div className="max-w-md w-full bg-white rounded-3xl p-8 shadow-xl border border-slate-200 text-center space-y-6">
+      <div className="min-h-[85vh] flex items-center justify-center p-4 bg-slate-900/10">
+        <div className="max-w-md w-full bg-white rounded-3xl p-8 shadow-2xl border border-slate-200 text-center space-y-6">
           <div className="w-16 h-16 rounded-2xl bg-[#0A192F] text-[#D4AF37] flex items-center justify-center mx-auto shadow-md">
             <Lock className="w-8 h-8" />
           </div>
 
           <div>
-            <h2 className="text-2xl font-black text-[#0A192F]">لوحة تحكم كلاسيك</h2>
-            <p className="text-xs text-slate-500 mt-1">
-              متابعة الزيارات والطلبات وحركة الزوار عبر فيسبوك والموقع
+            <h2 className="text-xl font-black text-[#0A192F]">منطقة الإدارة المحمية</h2>
+            <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+              هذه اللوحة خاصة ومحمية لإدارة شركة كلاسيك فقط للاطلاع على سجل العملاء وإحصائيات الزيارات
             </p>
           </div>
 
           <form onSubmit={handleLogin} className="space-y-4">
             <div>
               <label className="block text-xs font-bold text-slate-700 mb-1.5 text-start">
-                أدخل رمز الدخول (PIN Code):
+                أدخل رمز الأمان السري (PIN Code):
               </label>
               <input
                 type="password"
                 value={pinInput}
                 onChange={(e) => setPinInput(e.target.value)}
-                placeholder="الرمز الافتراضي: 1234"
-                className="w-full px-4 py-3 rounded-xl border border-slate-300 text-center font-mono text-lg tracking-widest focus:border-[#D4AF37] focus:ring-2 focus:ring-[#D4AF37]/20 outline-none"
+                placeholder="••••••••"
+                className="w-full px-4 py-3 rounded-xl border border-slate-300 text-center font-mono text-xl tracking-widest focus:border-[#D4AF37] focus:ring-2 focus:ring-[#D4AF37]/20 outline-none"
                 autoFocus
               />
               {pinError && (
-                <p className="text-xs text-red-500 mt-1.5 font-bold flex items-center gap-1 justify-center">
+                <p className="text-xs text-red-600 mt-2 font-bold flex items-center gap-1 justify-center">
                   <AlertCircle className="w-3.5 h-3.5" />
                   <span>{pinError}</span>
                 </p>
@@ -250,25 +279,17 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ lang, onBackToSi
               className="w-full py-3 px-4 rounded-xl bg-[#0A192F] hover:bg-[#132a4a] text-[#D4AF37] font-black text-sm transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
             >
               <Unlock className="w-4 h-4" />
-              <span>دخول إلى لوحة التحكم</span>
+              <span>تسجيل الدخول</span>
             </button>
           </form>
 
-          <div className="pt-2 border-t border-slate-100 space-y-2">
-            <button
-              onClick={handleQuickDemoLogin}
-              className="w-full py-2.5 px-3 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-700 font-bold text-xs border border-slate-200 transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
-            >
-              <ShieldCheck className="w-4 h-4 text-emerald-600" />
-              <span>دخول مباشر للتجربة (رمز: 1234)</span>
-            </button>
-
+          <div className="pt-2 border-t border-slate-100">
             <button
               onClick={onBackToSite}
-              className="w-full py-2 px-3 text-slate-500 hover:text-slate-800 text-xs font-semibold transition-colors flex items-center justify-center gap-1 cursor-pointer"
+              className="w-full py-2.5 px-3 text-slate-500 hover:text-[#0A192F] text-xs font-bold transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
             >
-              <ArrowRight className="w-3.5 h-3.5" />
-              <span>العودة إلى الموقع الرئيسي</span>
+              <ArrowRight className="w-4 h-4" />
+              <span>العودة إلى الموقع</span>
             </button>
           </div>
         </div>
@@ -314,6 +335,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ lang, onBackToSi
             </button>
 
             <button
+              onClick={() => setShowChangePinModal(true)}
+              className="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-slate-200 hover:text-white transition-all text-xs font-bold flex items-center gap-1.5 cursor-pointer"
+              title="تغيير رمز الدخول السري (PIN)"
+            >
+              <KeyRound className="w-3.5 h-3.5 text-[#D4AF37]" />
+              <span className="hidden sm:inline">تغيير الرمز</span>
+            </button>
+
+            <button
               onClick={handleExportCSV}
               className="p-2 rounded-xl bg-[#D4AF37]/20 hover:bg-[#D4AF37]/30 text-[#D4AF37] border border-[#D4AF37]/40 transition-all text-xs font-bold flex items-center gap-1.5 cursor-pointer"
               title="تصدير بيانات العملاء إلى Excel / CSV"
@@ -333,7 +363,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ lang, onBackToSi
             <button
               onClick={handleLogout}
               className="p-2 rounded-xl bg-red-500/20 hover:bg-red-500/30 text-red-300 hover:text-red-200 transition-colors cursor-pointer"
-              title="قفل لوحة التحكم"
+              title="قفل وتسجيل الخروج"
             >
               <Lock className="w-3.5 h-3.5" />
             </button>
@@ -1122,6 +1152,96 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ lang, onBackToSi
         )}
 
       </div>
+
+      {/* Change PIN Modal */}
+      {showChangePinModal && (
+        <div className="fixed inset-0 z-50 bg-[#0A192F]/70 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="w-full max-w-sm bg-white rounded-3xl p-6 shadow-2xl border border-slate-200 text-center space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-lg bg-[#0A192F] text-[#D4AF37] flex items-center justify-center">
+                  <KeyRound className="w-4 h-4" />
+                </div>
+                <h3 className="font-black text-sm text-[#0A192F]">تغيير رمز الدخول السري</h3>
+              </div>
+              <button
+                onClick={() => {
+                  setShowChangePinModal(false);
+                  setChangePinStatus({});
+                  setNewPinInput('');
+                  setConfirmPinInput('');
+                }}
+                className="w-7 h-7 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center transition-colors cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <p className="text-xs text-slate-500 text-start">
+              عيّن رمز أمان سري خاص بك لا يعرفه أحد غيرك لحماية بيانات العملاء.
+            </p>
+
+            <form onSubmit={handleChangePin} className="space-y-3 text-start">
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">
+                  الرمز الجديد (4 خانات على الأقل):
+                </label>
+                <input
+                  type="password"
+                  value={newPinInput}
+                  onChange={(e) => setNewPinInput(e.target.value)}
+                  placeholder="••••••••"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-center font-mono text-base tracking-widest focus:border-[#D4AF37] outline-none"
+                  autoFocus
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">
+                  تأكيد الرمز الجديد:
+                </label>
+                <input
+                  type="password"
+                  value={confirmPinInput}
+                  onChange={(e) => setConfirmPinInput(e.target.value)}
+                  placeholder="••••••••"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-center font-mono text-base tracking-widest focus:border-[#D4AF37] outline-none"
+                />
+              </div>
+
+              {changePinStatus.error && (
+                <p className="text-xs text-red-600 font-bold flex items-center gap-1">
+                  <AlertCircle className="w-3.5 h-3.5" />
+                  <span>{changePinStatus.error}</span>
+                </p>
+              )}
+
+              {changePinStatus.success && (
+                <p className="text-xs text-emerald-600 font-bold flex items-center gap-1">
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                  <span>{changePinStatus.success}</span>
+                </p>
+              )}
+
+              <div className="pt-2 flex items-center gap-2">
+                <button
+                  type="submit"
+                  className="flex-1 py-2.5 px-4 rounded-xl bg-[#0A192F] hover:bg-[#132a4a] text-[#D4AF37] font-bold text-xs transition-all shadow-sm cursor-pointer"
+                >
+                  حفظ الرمز الجديد
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowChangePinModal(false)}
+                  className="py-2.5 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition-colors cursor-pointer"
+                >
+                  إلغاء
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

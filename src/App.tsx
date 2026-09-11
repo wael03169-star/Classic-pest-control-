@@ -44,7 +44,7 @@ export default function App() {
     }
   }, [lang, currentPage]);
 
-  // Track page views and listen to hashchange
+  // Track page views and listen to hashchange & secret keyboard shortcut
   useEffect(() => {
     trackPageView(currentPage);
 
@@ -54,8 +54,28 @@ export default function App() {
       }
     };
 
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Secret shortcut: Ctrl + Shift + A or Cmd + Shift + A
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'a' || e.key === 'A' || e.key === 'ش')) {
+        e.preventDefault();
+        setCurrentPage(prev => {
+          if (prev === 'admin') {
+            window.location.hash = '';
+            return 'home';
+          } else {
+            window.location.hash = 'admin';
+            return 'admin';
+          }
+        });
+      }
+    };
+
     window.addEventListener('hashchange', handleHashChange);
-    return () => window.removeEventListener('hashchange', handleHashChange);
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('hashchange', handleHashChange);
+      window.removeEventListener('keydown', handleKeyDown);
+    };
   }, [currentPage]);
 
   // Navigate handler

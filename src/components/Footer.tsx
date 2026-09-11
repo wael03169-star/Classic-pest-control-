@@ -21,6 +21,19 @@ interface FooterProps {
 }
 
 export const Footer: React.FC<FooterProps> = ({ lang, onNavigate, onOpenQuoteModal }) => {
+  const [secretTaps, setSecretTaps] = React.useState(0);
+
+  const handleSecretAccess = () => {
+    setSecretTaps(prev => {
+      const next = prev + 1;
+      if (next >= 3) {
+        onNavigate('admin');
+        return 0;
+      }
+      return next;
+    });
+  };
+
   const quickLinks: { id: PageId; labelAr: string; labelEn: string }[] = [
     { id: 'home', labelAr: 'الرئيسية', labelEn: 'Home' },
     { id: 'about', labelAr: 'من نحن', labelEn: 'About Us' },
@@ -248,14 +261,18 @@ export const Footer: React.FC<FooterProps> = ({ lang, onNavigate, onOpenQuoteMod
 
         {/* Bottom Bar: Copyright & Note */}
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
-          <p>
+          <p
+            onClick={handleSecretAccess}
+            className="cursor-default select-none"
+            title=""
+          >
             © {COMPANY_CONFIG.copyrightYear} {COMPANY_CONFIG.nameEn} - {lang === 'ar' ? 'جميع الحقوق محفوظة' : 'All Rights Reserved'}
           </p>
 
           <div className="flex items-center gap-4">
             <button
               onClick={onOpenQuoteModal}
-              className="text-[#D4AF37] hover:underline font-bold"
+              className="text-[#D4AF37] hover:underline font-bold cursor-pointer"
             >
               {lang === 'ar' ? 'طلب عرض سعر' : 'Request a Quote'}
             </button>
@@ -263,15 +280,6 @@ export const Footer: React.FC<FooterProps> = ({ lang, onNavigate, onOpenQuoteMod
             <span className="text-slate-400">
               {lang === 'ar' ? 'مكافحة آفات الصحة العامة' : 'Public Health Pest Management'}
             </span>
-            <span>•</span>
-            <button
-              onClick={() => onNavigate('admin')}
-              className="text-slate-400 hover:text-[#D4AF37] flex items-center gap-1 transition-colors cursor-pointer"
-              title="لوحة تحكم وتتبع الزيارات"
-            >
-              <ShieldCheck className="w-3.5 h-3.5 text-[#D4AF37]" />
-              <span>{lang === 'ar' ? 'لوحة التحكم' : 'Admin'}</span>
-            </button>
           </div>
         </div>
 
